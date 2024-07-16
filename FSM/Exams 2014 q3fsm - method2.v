@@ -12,7 +12,7 @@ module top_module (
     always @(*) begin
         
         case (state)
-            A: next_state = s ? B : A;
+            A: next_state = s ? B : A; // 分為 4 個狀態，可以細部來檢視在3個clk以內發生的變化，比較好理解
             B: next_state = C;
             C: next_state = D;
             D: next_state = B;
@@ -40,6 +40,6 @@ module top_module (
            count <= count + w; 
         end
     end
-    assign z = (count == 2) &&(state == B) ;
+    assign z = (count == 2) &&(state == B) ; // 狀態會從 A -> B -> C -> D -> B -> C -> D -> B... ， 故當state為B並且count為2，則z拉到高電平。
     
 endmodule
