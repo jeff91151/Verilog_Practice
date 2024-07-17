@@ -1,0 +1,27 @@
+看了李哥的文章，學了很多內容，不只要輸入，也要能夠輸出。
+以下是針對這篇文章的總結。
+出處: https://zhuanlan.zhihu.com/p/237066099
+
+Q. 設計一個邏輯來判斷A是否為獨熱碼，若給一個4bit 的A訊號，輸出為Y。 若是的話Y輸出為1，否則反之。
+Ans: 首先用k-map，畫truth table，將Y輸出為1的寫下來，應是SOP型態。 再來看所需的logic gate為何，
+得知所需4個and以及1個or閘。
+
+Q. 若今天要求更大的bit，如16 bit 或者 32 bit，如何解?
+可以採用參數化的方式，重複調用是關鍵。
+如下:
+parameter WIDTH = 16;
+function is_onehot (input[WIDTH-1:0] sig)
+//put  your code here
+endfunction
+
+接下來要解決這題，可以將每個位元加起來，比對看說這個是否加起來為1， 若是則代表這個A是獨熱碼。
+因此，用個for迴圈都起來，如下:
+function automatic logic is_onehot(input [WIDTH-1:0] sig);
+  localparam SUM_WIDHT = $clog2(WIDTH) + 1; // clog2 代表是以2為底的函數，至於為何要這樣做，我想是因為讓sum的位寬能 4+1，保證sum不會溢位?
+  logic [SUM_WIDTH-1:0] sum;
+  sum = '0;
+  for(int i = 0; i < WIDHT; i++)
+     sum = sum + sig[i];
+  is_onehot = (sum == 1);
+endfunction
+
