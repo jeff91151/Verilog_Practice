@@ -13,7 +13,7 @@ parameter WIDTH = 16;
 function is_onehot (input[WIDTH-1:0] sig)
 //put  your code here
 endfunction
-
+(法1)
 接下來要解決這題，可以將每個位元加起來，比對看說這個是否加起來為1， 若是則代表這個A是獨熱碼。
 因此，用個for迴圈都起來，如下:
 function automatic logic is_onehot(input [WIDTH-1:0] sig);
@@ -23,5 +23,31 @@ function automatic logic is_onehot(input [WIDTH-1:0] sig);
   for(int i = 0; i < WIDHT; i++)
      sum = sum + sig[i];
   is_onehot = (sum == 1);
+endfunction
+
+(法2) 優化電路
+由於我們觀察到，第一級以及第二級電路不用使用到2bit的加法器，用half adder也可以達到同樣的效果。
+然而，half adder的本質就是XOR gate。
+故我們可以藉【奇偶校驗】，來應用在檢測獨熱碼。
+
+對應如下:
+A: 0001、0010、0100、1000
+
+P: 1111、1110、1100、1000
+
+可以觀察到若A為獨熱碼(第i位為1)，那麼P的第i-1到第0位都是0，而第i位和更高位都是1。
+若A不是獨熱碼，則會發現最高位是0
+
+再來，我們將A(獨熱碼)按位取反，然後再和P按位OR，則發現每個位為1。
+因此，我們可以知道，若A是獨熱碼，則Y出來必是1，若否則反之。
+不過，有個特例便是皆是0的情況，若取反變成1111，跟P取or會變1111。 這個情況要特別補充。
+
+如下:
+function automatic logic is_onehot(input [WIDTH-1:0] sig);
+  logic [WIDTH-1:0] parity;
+  parity[0] = sig[0];
+  for(int i = 1; i < WIDTH; i++)
+     parity[i] = parity[i-1] ^ sig[i];
+  is_onehot = parity[i-1] & (&(parity | ~sig)); // parity[i-1] 檢查訊號是否全為0的情況；&(parity | ~sig) 是上述提及A訊號取反在與P Or起來，在按位and起來，若為1則代表是獨熱碼。
 endfunction
 
